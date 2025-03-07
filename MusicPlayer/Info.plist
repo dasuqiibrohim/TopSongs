@@ -10,8 +10,5 @@
 		<string>Inter-Regular.ttf</string>
 		<string>Inter-Light.ttf</string>
 	</array>
-
-	<key>NSAppleMusicUsageDescription</key>
-	<string>Aplikasi ini membutuhkan akses ke Apple Music untuk memutar lagu.</string>
 </dict>
 </plist>
