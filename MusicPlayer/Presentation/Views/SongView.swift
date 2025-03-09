@@ -11,7 +11,6 @@ import AVFoundation
 
 struct SongView: View {
     @StateObject var viewModel = SongViewModel()
-    @StateObject private var playerViewModel = SongPlayerViewModel()
     
     var body: some View {
         VStack(spacing: 0) {
@@ -51,84 +50,87 @@ struct SongView: View {
                 .padding()
             }
         
-            VStack(spacing: 16) {
-                // Progress Bar & Time Labels
-                VStack {
-                    Slider(value: .constant(0), in: 0...1)
-                        .accentColor(Color.blackRock)
-                        .background(
-                            Capsule()
-                                .fill(Color.cloudBurst)
-                                .frame(height: 4)
-                        )
-                    HStack {
-                        Text("1:46")
-                            .font(.regular12)
-                            .foregroundColor(.white)
-                        Spacer()
-                        Text("3:40")
-                            .font(.regular12)
-                            .foregroundColor(.white)
-                    }
-                }
-                .padding(.horizontal)
-                
-                // Controls
-                HStack(spacing: 0) {
-                    Button {
-                        
-                    } label: {
-                        Image(systemName: "shuffle")
-                            .foregroundColor(.white)
-                    }
-                    .frame(maxWidth: .infinity)
-
-                    Button {
-                        viewModel.previousSong()
-                    } label: {
-                        Image(systemName: "backward.fill")
-                            .foregroundColor(.white)
-                            .font(.system(size: 24))
-                    }
-                    .frame(maxWidth: .infinity)
-                    
-                    Button {
-                        
-                    } label: {
-                        Circle()
-                            .fill(Color.white)
-                            .frame(width: 50, height: 50)
-                            .overlay(
-                                Image(systemName: /*isPlaying ? "pause.fill" :*/ "play.fill")
-                                    .resizable()
-                                    .scaledToFit()
-                                    .frame(width: 18, height: 18)
-                                    .foregroundColor(.blackRock)
+            if let currentSong = viewModel.currentSong {
+                VStack(spacing: 16) {
+                    // Progress Bar & Time Labels
+                    VStack {
+                        Slider(value: .constant(currentSong.progress), in: 0...(currentSong.duration))
+                            .accentColor(Color.blackRock)
+                            .background(
+                                Capsule()
+                                    .fill(Color.cloudBurst)
+                                    .frame(height: 4)
                             )
+                        HStack {
+                            Text(currentSong.formattedProgress)
+                                .font(.regular12)
+                                .foregroundColor(.white)
+                            Spacer()
+                            Text(currentSong.formattedDuration)
+                                .font(.regular12)
+                                .foregroundColor(.white)
+                        }
                     }
-                    .frame(maxWidth: .infinity)
+                    .padding(.horizontal)
                     
-                    Button {
-                        viewModel.nextSong()
-                    } label: {
-                        Image(systemName: "forward.fill")
-                            .foregroundColor(.white)
-                            .font(.system(size: 24))
-                    }
-                    .frame(maxWidth: .infinity)
-                    
-                    Button {
+                    // Controls
+                    HStack(spacing: 0) {
+                        Button {
+                            
+                        } label: {
+                            Image(systemName: "shuffle")
+                                .foregroundColor(.white)
+                        }
+                        .frame(maxWidth: .infinity)
+
+                        Button {
+                            viewModel.previousSong()
+                        } label: {
+                            Image(systemName: "backward.fill")
+                                .foregroundColor(.white)
+                                .font(.system(size: 24))
+                        }
+                        .frame(maxWidth: .infinity)
                         
-                    } label: {
-                        Image(systemName: "repeat")
-                            .foregroundColor(.white)
+                        Button {
+                            currentSong.isPlaying ? viewModel.stopSong(): viewModel.playAudioPlayer()
+                        } label: {
+                            Circle()
+                                .fill(Color.white)
+                                .frame(width: 50, height: 50)
+                                .overlay(
+                                    Image(systemName: currentSong.isPlaying ? "stop.fill" : "play.fill")
+                                        .resizable()
+                                        .scaledToFit()
+                                        .frame(width: 18, height: 18)
+                                        .foregroundColor(.blackRock)
+                                )
+                        }
+                        .frame(maxWidth: .infinity)
+                        
+                        Button {
+                            viewModel.nextSong()
+                        } label: {
+                            Image(systemName: "forward.fill")
+                                .foregroundColor(.white)
+                                .font(.system(size: 24))
+                        }
+                        .frame(maxWidth: .infinity)
+                        
+                        Button {
+                            
+                        } label: {
+                            Image(systemName: "repeat")
+                                .foregroundColor(.white)
+                        }
+                        .frame(maxWidth: .infinity)
                     }
-                    .frame(maxWidth: .infinity)
                 }
+                .padding()
+                .background(Color.manatee)
+                .shadow(radius: 8)
             }
-            .padding()
-            .background(Color.manatee)
-            .shadow(radius: 8)
+            
         }
         .background(Color.blackRock)
         .onAppear { viewModel.loadSongs() }
@@ -151,7 +153,6 @@ struct SongView: View {
                 }
                 .foregroundColor(.rockBlue)
                 Button {
-                    playerViewModel.play(song: song)
                     viewModel.playSong(for: song.id)
                 } label: {
                     Circle()

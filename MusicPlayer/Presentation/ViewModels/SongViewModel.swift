@@ -8,20 +8,22 @@
 import Foundation
 
 class SongViewModel: ObservableObject {
+    private let fetchSongsUseCase: FetchSongsUseCase = FetchSongsUseCaseImpl()
+    private let audioPlayer = AudioPlayerService()
+    
     @Published var songs: [Song]? = nil
     @Published var isLoading: Bool = false
     @Published var errorMessage: String?
+    @Published var progress: Double = 0.0
     
     @Published var currentIndex: Int = 0 {
-        didSet {
-            updateStatusSongs()
-        }
+        didSet { updateStatusSongs(); playAudioPlayer() }
     }
     var currentSong: Song? {
-        songs?[currentIndex]
+        get { songs?[currentIndex] }
     }
     
-    private let fetchSongsUseCase: FetchSongsUseCase = FetchSongsUseCaseImpl()
+    init() { setupAudioProgressObserver() }
     
     func loadSongs() {
         isLoading = true
@@ -40,6 +42,9 @@ class SongViewModel: ObservableObject {
     func playSong(for id: String) {
         guard let index = songs?.firstIndex(where: { $0.id == id }) else { return }
         currentIndex = index
+    }
+    func stopSong() {
+        audioPlayer.stop()
     }
     func nextSong() {
         guard let songs = songs else { return }
@@ -60,6 +65,18 @@ class SongViewModel: ObservableObject {
             var updatedSong = song
             updatedSong.isPlaying = (song.id == currentId)
             return updatedSong
+        }
+    }
+    func playAudioPlayer() {
+        guard let song = currentSong else { return }
+        audioPlayer.playSong(from: song)
+    }
+    private func setupAudioProgressObserver() {
+        audioPlayer.onProgressUpdate = { [weak self] progress in
+            guard let self = self,
+                  let index = self.songs?.firstIndex(where: { $0.id == self.currentSong?.id }) else { return }
+            self.songs?[index].progress = progress
+            self.songs?[index].isPlaying = (progress < self.songs?[index].duration ?? 0) && progress != 0
         }
     }
 }

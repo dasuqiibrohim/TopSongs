@@ -35,7 +35,7 @@ class APIClient {
                         imageUrl: entry.imageUrl.last?.label ?? "",
                         previewUrl: entry.link.last?.attributes.href ?? "",
                         fullMusicUrl: entry.link.first?.attributes.href ?? "",
-                        duration: entry.link.last?.imDuration?.label ?? ""
+                        duration: Double(entry.link.last?.imDuration?.label ?? "") ?? 0
                     )
                 }
                 completion(.success(songs))
