@@ -34,7 +34,7 @@ MusicPlayerApp/
 
 1. Clone repository ini
 ```sh
-   git clone <repo-url>
+   git clone https://github.com/dasuqiibrohim/TopSongs.git
    cd MusicPlayer
 ```
 2. Buka MusicPlayer.xcodeproj di Xcode
